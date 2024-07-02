@@ -39,7 +39,6 @@ public class MainTest {
 //
 //        System.out.println(
 //                cloudinary.api().resource("coffee_cup", params2));
-
         testPasswordEncoder();
     }
 }
