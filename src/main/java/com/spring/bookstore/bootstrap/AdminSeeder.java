@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -25,6 +26,9 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -42,7 +46,7 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
         }
         Users newAdmin = new Users();
         newAdmin.setEmail(this.email);
-        newAdmin.setPassword("123456");
+        newAdmin.setPassword(this.passwordEncoder.encode("123456"));
         newAdmin.setFullName("Cao Bá Hiếu");
         newAdmin.setRole(role);
 

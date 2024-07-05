@@ -1,5 +1,6 @@
 package com.spring.bookstore.dto;
 
+import com.spring.bookstore.entity.Book;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LoginResponse {
-    private String token;
-    private long expirationTime;
+public class ReviewDto {
+    private int reviewId;
+    private Book book;
+    private String customerFullName;
+    private String comment;
 }

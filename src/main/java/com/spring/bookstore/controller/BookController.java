@@ -47,7 +47,7 @@ public class BookController {
         }
     }
 
-    @PutMapping("{id}/update")
+    @PutMapping("{id}")
     public ResponseEntity<?> UpdateBook(@PathVariable("id") int bookId,
                                         @ModelAttribute BookDto bookDto) throws IOException{
         try {
@@ -59,11 +59,22 @@ public class BookController {
         }
     }
 
-    @DeleteMapping("{id}/delete")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteBook(@PathVariable("id") int bookId) {
         try {
             this.bookService.deleteBook(bookId);
             return ResponseEntity.ok("The book with id" + bookId + " has been deleted successfully!");
+        } catch (EntityNotFoundException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("category/{id}")
+    public ResponseEntity<?> getAllBooksByCategory(@PathVariable("id") int categoryId) {
+        try {
+            List<Book> books = this.bookService.getAllBooksByCategory(categoryId);
+            return ResponseEntity.ok(books);
         } catch (EntityNotFoundException e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

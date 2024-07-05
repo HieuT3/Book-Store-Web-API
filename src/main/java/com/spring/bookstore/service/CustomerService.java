@@ -1,12 +1,13 @@
 package com.spring.bookstore.service;
 
+import com.spring.bookstore.dto.CustomerProfileDto;
 import com.spring.bookstore.entity.Customer;
 import com.spring.bookstore.entity.RoleEnum;
 import com.spring.bookstore.repository.CustomerRepository;
 import com.spring.bookstore.repository.RoleRepository;
-import com.spring.bookstore.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,37 +20,38 @@ public class CustomerService {
     private CustomerRepository customerRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private ModelMapper modelMapper;
 
-    public Customer getCustomerById(int customerId) {
-        return this.customerRepository.findById(customerId)
+    public CustomerProfileDto getCustomerById(int customerId) {
+        Customer customer = this.customerRepository.findById(customerId)
                 .orElseThrow(
                         () -> new EntityNotFoundException("The customer with id " + customerId + " not found!")
                 );
+        return this.modelMapper.map(customer, CustomerProfileDto.class);
     }
 
-    public List<Customer> getAllCustomers() {
-        return this.customerRepository.findAll();
+    public List<CustomerProfileDto> getAllCustomers() {
+        List<Customer> customers = this.customerRepository.findAll();
+        return customers.stream().map((customer) -> this.modelMapper.map(customer, CustomerProfileDto.class)).toList();
     }
 
-    public Customer registerCustomer(Customer customer) {
+    public CustomerProfileDto registerCustomer(Customer customer) {
         boolean check = this.customerRepository.existsByEmail(customer.getEmail());
         if(check) {
             throw new IllegalArgumentException("The email already exists!");
         }
         customer.setPassword(this.passwordEncoder.encode(customer.getPassword()));
         customer.setRole(this.roleRepository.findByName(RoleEnum.USER).get());
-        System.out.println(customer);
-        return this.customerRepository.save(customer);
+
+        return this.modelMapper.map(this.customerRepository.save(customer), CustomerProfileDto.class);
     }
 
-    // Chua on, phai nghien cuu lai
-    public Customer updateCustomer(int customerId, Customer customer) {
-        Customer existsCustomer = this.customerRepository.findById(customerId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException("The customer with id " + customerId + " not found!")
-                );
-        customer.setUserId(customerId);
-        return this.customerRepository.save(customer);
+    public CustomerProfileDto updateProfile(int userId, CustomerProfileDto customerProfileDto) {
+        Customer customer = this.customerRepository.findById(userId).get();
+        customer.setFullName(customerProfileDto.getFullName());
+        customer.setPhone(customerProfileDto.getPhone());
+        customer.setAddress(customerProfileDto.getAddress());
+        return this.modelMapper.map(this.customerRepository.save(customer), CustomerProfileDto.class);
     }
 
     public void deleteCustomer(int customerId) {

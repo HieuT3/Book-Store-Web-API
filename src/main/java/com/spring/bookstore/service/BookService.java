@@ -4,8 +4,10 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.spring.bookstore.dto.BookDto;
 import com.spring.bookstore.entity.Book;
+import com.spring.bookstore.entity.Category;
 import com.spring.bookstore.mapper.BookMapper;
 import com.spring.bookstore.repository.BookRepository;
+import com.spring.bookstore.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +22,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class BookService {
 
+    private CategoryRepository categoryRepository;
     private BookRepository bookRepository;
     private Cloudinary cloudinary;
     private BookMapper bookMapper;
@@ -83,5 +86,13 @@ public class BookService {
                 () -> new EntityNotFoundException("The book with id " + bookId + " not found")
         );
         this.bookRepository.deleteById(bookId);
+    }
+
+    public List<Book> getAllBooksByCategory(int categoryId) {
+        Category category = this.categoryRepository.findById(categoryId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException("The category with id " + categoryId + " not found")
+                );
+        return this.bookRepository.findAllByCategory(category);
     }
 }

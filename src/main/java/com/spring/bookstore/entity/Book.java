@@ -45,7 +45,7 @@ public class Book {
     private String imageURL;
 
     @Column(nullable = false, precision = 12)
-    private float price;
+    private double price;
 
     @Column(name = "publish_date", nullable = false)
     @Temporal(TemporalType.DATE)

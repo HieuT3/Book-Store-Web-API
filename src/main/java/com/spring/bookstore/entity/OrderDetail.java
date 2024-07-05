@@ -1,5 +1,6 @@
 package com.spring.bookstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class OrderDetail {
     private int orderDetailId;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "orders", referencedColumnName = "order_id")
     private Order orders;
 
@@ -31,6 +33,6 @@ public class OrderDetail {
     private int quantity;
 
     @Column(nullable = false, precision = 12)
-    private float subTotal;
+    private double subTotal;
 
 }

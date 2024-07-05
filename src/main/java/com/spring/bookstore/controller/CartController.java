@@ -1,31 +1,62 @@
 package com.spring.bookstore.controller;
 
 import com.spring.bookstore.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("api/redis")
+@RequestMapping("api/cart")
+@AllArgsConstructor
 public class CartController {
 
-    @Autowired
     private CartService cartService;
 
-    @PostMapping("save")
-    public ResponseEntity<?> save(@RequestParam("key") String key, @RequestParam("value") Object value) {
-        cartService.save(key, value);
-        return ResponseEntity.ok().build();
+    @GetMapping("add/{id}")
+    public ResponseEntity<?> addToCart(@PathVariable("id") int bookId) {
+        this.cartService.addToCart(bookId);
+        return ResponseEntity.ok("Successfully!");
     }
 
-    @GetMapping("get/{key}")
-    public ResponseEntity<?> get(@PathVariable("key") String key) {
-        return ResponseEntity.ok(cartService.get(key));
+    @GetMapping("clear")
+    public ResponseEntity<String> clearCart() {
+        this.cartService.removeCart();
+        return ResponseEntity.ok("Successfully!");
     }
 
-    @DeleteMapping("delete/{key}")
-    public ResponseEntity<?> delete(@PathVariable("key") String key) {
-         this.cartService.delete(key);
-         return ResponseEntity.ok("Deleted successfully!");
+    @GetMapping("remove/{id}")
+    public ResponseEntity<String> removeItem(@PathVariable("id") int bookId) {
+        this.cartService.removeItem(bookId);
+        return ResponseEntity.ok("Successfully!");
+    }
+
+    @GetMapping("minus/{id}")
+    public ResponseEntity<String> minusItem(@PathVariable("id") int bookId) {
+        this.cartService.minusItem(bookId);
+        return ResponseEntity.ok("Successfully!");
+    }
+
+    @GetMapping("items")
+    public ResponseEntity<Map<Integer, Integer>> getItems() {
+        Map<Integer, Integer> items = this.cartService.getItems();
+        System.out.println(items);
+        return ResponseEntity.ok(items);
+    }
+
+    @GetMapping("total-items")
+    public ResponseEntity<Integer> getTotalItems() {
+        return ResponseEntity.ok(this.cartService.getTotalItems());
+    }
+
+    @GetMapping("total-quantities")
+    public ResponseEntity<Integer> getTotalQuantities() {
+        return ResponseEntity.ok(this.cartService.getTotalQuantities());
+    }
+
+    @GetMapping("total-amount")
+    public ResponseEntity<Double> getTotalAmount() {
+        return ResponseEntity.ok(this.cartService.getTotalAmount());
     }
 }

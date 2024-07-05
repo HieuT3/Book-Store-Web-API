@@ -26,6 +26,7 @@ public class AuthService {
             );
         } catch (BadCredentialsException e) {
             e.printStackTrace();
+            return null;
         }
 
         return this.userRepository.findByEmail(loginUserDto.getEmail())

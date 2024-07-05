@@ -1,6 +1,5 @@
 package com.spring.bookstore.controller;
 
-import com.spring.bookstore.entity.Book;
 import com.spring.bookstore.entity.Category;
 import com.spring.bookstore.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
@@ -47,7 +46,7 @@ public class CategoryController {
         }
     }
 
-    @PutMapping("{id}/update")
+    @PutMapping("{id}")
     public ResponseEntity<?> updateCategory(@PathVariable("id") int categoryId,
                                             @RequestBody Category category) {
         try {
@@ -59,22 +58,11 @@ public class CategoryController {
         }
     }
 
-    @DeleteMapping("{id}/delete")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable("id") int categoryId) {
         try {
             this.categoryService.deleteCategory(categoryId);
             return ResponseEntity.ok("The category has been successfully deleted!");
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("{id}/books")
-    public ResponseEntity<?> getBooksByCategory(@PathVariable("id") int categoryId) {
-        try {
-            List<Book> books = this.categoryService.getBooksByCategory(categoryId);
-            return ResponseEntity.ok(books);
         } catch (EntityNotFoundException e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

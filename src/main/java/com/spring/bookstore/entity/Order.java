@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -27,8 +27,8 @@ public class Order {
     @JoinColumn(name = "customer", referencedColumnName = "user_id")
     private Customer customer;
 
-    @CreatedDate
-    private LocalDate orderDate;
+    @CreationTimestamp
+    private Date orderDate;
 
     @Column(nullable = false)
     private String shippingAddress;
@@ -49,10 +49,10 @@ public class Order {
     private int bookCopies;
 
     @Column(nullable = false, precision = 12)
-    private float total;
+    private double total;
 
-    @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatusEnum status;
 
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     private Set<OrderDetail> orderDetails;

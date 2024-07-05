@@ -1,5 +1,6 @@
 package com.spring.bookstore.controller;
 
+import com.spring.bookstore.dto.CustomerProfileDto;
 import com.spring.bookstore.entity.Customer;
 import com.spring.bookstore.service.CustomerService;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/cus")
+@RequestMapping("api/customer")
 @AllArgsConstructor
 public class CustomerController {
 
@@ -20,7 +21,7 @@ public class CustomerController {
     @GetMapping("{id}")
     public ResponseEntity<?> getCustomer(@PathVariable("id") int customerId) {
         try {
-            Customer customer = this.customerService.getCustomerById(customerId);
+            CustomerProfileDto customer = this.customerService.getCustomerById(customerId);
             return new ResponseEntity<>(customer, HttpStatus.FOUND);
         } catch (EntityNotFoundException e) {
             e.printStackTrace();
@@ -29,14 +30,14 @@ public class CustomerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Customer>> getAllCustomers() {
+    public ResponseEntity<List<CustomerProfileDto>> getAllCustomers() {
         return ResponseEntity.ok(this.customerService.getAllCustomers());
     }
 
     @PostMapping
     public ResponseEntity<?> registerCustomer(@RequestBody Customer customer) {
         try {
-            Customer savedCustomer = this.customerService.registerCustomer(customer);
+            CustomerProfileDto savedCustomer = this.customerService.registerCustomer(customer);
             return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -44,11 +45,11 @@ public class CustomerController {
         }
     }
 
-    @PutMapping("{id}/update")
+    @PutMapping("{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable("id") int customerId,
-                                            @RequestBody Customer customer) {
+                                            @RequestBody CustomerProfileDto customer) {
         try {
-            Customer updatedCustomer = this.customerService.updateCustomer(customerId, customer);
+            CustomerProfileDto updatedCustomer = this.customerService.updateProfile(customerId, customer);
             return ResponseEntity.ok(updatedCustomer);
         } catch (EntityNotFoundException e) {
             e.printStackTrace();
@@ -56,7 +57,7 @@ public class CustomerController {
         }
     }
 
-    @DeleteMapping("{id}/delete")
+    @DeleteMapping("{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable("id") int customerId) {
         try {
             this.customerService.deleteCustomer(customerId);

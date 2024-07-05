@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,4 +30,9 @@ public class Review {
     @JoinColumn(name = "customer", referencedColumnName = "user_id")
     private Customer customer;
 
+    @Column(nullable = false, length = 16777215)
+    private String comment;
+
+    @CreationTimestamp
+    private Date reviewTime;
 }

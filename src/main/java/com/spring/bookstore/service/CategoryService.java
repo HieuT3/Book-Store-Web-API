@@ -53,11 +53,4 @@ public class CategoryService {
         );
         this.categoryRepository.deleteById(categoryId);
     }
-
-    public List<Book> getBooksByCategory(int categoryId) {
-        Category category = this.categoryRepository.findById(categoryId).orElseThrow(
-                () -> new EntityNotFoundException("The category with id " + categoryId + " not found!")
-        );
-        return category.getBooks().stream().toList();
-    }
 }
