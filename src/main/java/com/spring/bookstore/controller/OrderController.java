@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class OrderController {
 
     private OrderService orderService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("{id}")
     public ResponseEntity<?> getOrderById(@PathVariable("id") int orderId) {
         try {
@@ -29,21 +31,25 @@ public class OrderController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(this.orderService.getAllOrders());
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<Order> placeOrder(@RequestBody OrderRequestDto orderRequestDto) {
         return new ResponseEntity<>(this.orderService.placeOrder(orderRequestDto), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("customer")
     public ResponseEntity<List<Order>> getAllOrdersByCustomer() {
         return ResponseEntity.ok(this.orderService.getAllOrderByCustomer());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteOrder(@PathVariable("id") int orderId) {
         try {
@@ -55,6 +61,7 @@ public class OrderController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}/status")
     public ResponseEntity<?> updateOrderStatus(@PathVariable("id") int orderId,
                                                @RequestParam("status") OrderStatusEnum status) {

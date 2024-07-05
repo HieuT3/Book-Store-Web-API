@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class CustomerController {
 
     private CustomerService customerService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("{id}")
     public ResponseEntity<?> getCustomer(@PathVariable("id") int customerId) {
         try {
@@ -29,6 +31,7 @@ public class CustomerController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<CustomerProfileDto>> getAllCustomers() {
         return ResponseEntity.ok(this.customerService.getAllCustomers());
@@ -45,6 +48,7 @@ public class CustomerController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("{id}")
     public ResponseEntity<?> updateCustomer(@PathVariable("id") int customerId,
                                             @RequestBody CustomerProfileDto customer) {
@@ -57,6 +61,7 @@ public class CustomerController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable("id") int customerId) {
         try {

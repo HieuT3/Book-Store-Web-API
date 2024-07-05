@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class BookController {
     public ResponseEntity<?> getBookById(@PathVariable("id") int bookId) {
         try {
             Book book =this.bookService.getBookById(bookId);
-            return new ResponseEntity<>(book, HttpStatus.FOUND);
+            return new ResponseEntity<>(book, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -36,6 +37,7 @@ public class BookController {
         return ResponseEntity.ok(this.bookService.getAllBooks());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createBook(@ModelAttribute BookDto bookDto) throws IOException{
         try {
@@ -47,6 +49,7 @@ public class BookController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{id}")
     public ResponseEntity<?> UpdateBook(@PathVariable("id") int bookId,
                                         @ModelAttribute BookDto bookDto) throws IOException{
@@ -59,6 +62,7 @@ public class BookController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteBook(@PathVariable("id") int bookId) {
         try {

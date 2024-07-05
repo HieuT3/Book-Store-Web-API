@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ReviewController {
     private ReviewService reviewService;
     private ModelMapper modelMapper;
 
+
     @GetMapping("{id}")
     public ResponseEntity<?> getReviewById(@PathVariable("id") int reviewId) {
         try {
@@ -31,6 +33,7 @@ public class ReviewController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<ReviewDto>> getAllReview() {
         List<ReviewDto> reviewDtoList = this.reviewService.getAllReviews()
@@ -40,12 +43,14 @@ public class ReviewController {
         return ResponseEntity.ok(reviewDtoList);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<ReviewDto> addReview(@RequestBody ReviewRequestDto review) {
         ReviewDto reviewDto = this.modelMapper.map(this.reviewService.addReview(review), ReviewDto.class);
         return new ResponseEntity<>(reviewDto, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("{id}")
     public ResponseEntity<?> updateReview(@PathVariable("id") int reviewId,
                                           @RequestBody ReviewRequestDto review) {
@@ -58,6 +63,7 @@ public class ReviewController {
         }
     }
 
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteReview(@PathVariable("id") int reviewId) {
         try {
