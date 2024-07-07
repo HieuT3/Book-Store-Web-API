@@ -1,10 +1,13 @@
 package com.spring.bookstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,4 +28,8 @@ public class Role {
 
     @Column(nullable = false)
     private String description;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "role")
+    private Set<Users> users;
 }

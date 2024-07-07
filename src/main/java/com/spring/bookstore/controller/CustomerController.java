@@ -2,9 +2,14 @@ package com.spring.bookstore.controller;
 
 import com.spring.bookstore.dto.CustomerProfileDto;
 import com.spring.bookstore.entity.Customer;
+import com.spring.bookstore.entity.Users;
+import com.spring.bookstore.event.OnRegisterCompleteEvent;
 import com.spring.bookstore.service.CustomerService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +23,8 @@ import java.util.List;
 public class CustomerController {
 
     private CustomerService customerService;
+    private ApplicationEventPublisher applicationEventPublisher;
+    private ModelMapper modelMapper;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("{id}")
@@ -38,10 +45,14 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<?> registerCustomer(@RequestBody Customer customer, HttpServletRequest request) {
         try {
             CustomerProfileDto savedCustomer = this.customerService.registerCustomer(customer);
-            return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+
+            String appURL = request.getContextPath();
+            Users users = this.modelMapper.map(savedCustomer, Users.class);
+            this.applicationEventPublisher.publishEvent(new OnRegisterCompleteEvent(users, appURL));
+            return new ResponseEntity<>("You have registered successfully but your account is not active", HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

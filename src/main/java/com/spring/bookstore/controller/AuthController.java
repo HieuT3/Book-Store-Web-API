@@ -3,18 +3,22 @@ package com.spring.bookstore.controller;
 import com.spring.bookstore.dto.LoginResponseDto;
 import com.spring.bookstore.dto.LoginUserDto;
 import com.spring.bookstore.entity.Users;
+import com.spring.bookstore.entity.VerificationToken;
+import com.spring.bookstore.repository.CustomerRepository;
+import com.spring.bookstore.repository.UserRepository;
 import com.spring.bookstore.security.JwtAuthenticationProvider;
 import com.spring.bookstore.service.AuthService;
+import com.spring.bookstore.service.CustomerService;
+import com.spring.bookstore.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("auth")
@@ -24,6 +28,8 @@ public class AuthController {
     private JwtAuthenticationProvider authenticationProvider;
     private AuthService authService;
     private UserDetailsService userDetailsService;
+    private UserService userService;
+    private UserRepository userRepository;
 
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginUserDto) {
@@ -36,5 +42,19 @@ public class AuthController {
             e.printStackTrace();
             return new ResponseEntity<>(new BadCredentialsException("Email or password is incorrect!"), HttpStatus.UNAUTHORIZED);
         }
+    }
+
+    @GetMapping("registrationConfirmation")
+    public ResponseEntity<?> registrationConfirmation(@RequestParam("token") String token) {
+        VerificationToken verificationToken = this.userService.getVerificationTokenByToken(token);
+        if(verificationToken == null) {
+            return new ResponseEntity<>("Invalid Token", HttpStatus.BAD_REQUEST);
+        }
+        if(verificationToken.getExpiryDate().before(new Date(System.currentTimeMillis()))) {
+            return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
+        }
+        Users users = verificationToken.getUsers();
+        users.setEnabled(true);
+        return ResponseEntity.ok(this.userRepository.save(users));
     }
 }

@@ -1,15 +1,13 @@
 package com.spring.bookstore.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 @Entity
 @Table(name = "user")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -29,7 +27,10 @@ public class Users {
     @Column(nullable = false, length = 50)
     protected String fullName;
 
-    @OneToOne
-    @JoinColumn(name = "role", referencedColumnName = "role_id", nullable = false)
+    @Column(nullable = false)
+    protected boolean enabled = false;
+
+    @ManyToOne
+    @JoinColumn(name = "role", referencedColumnName = "role_id")
     protected Role role;
 }
