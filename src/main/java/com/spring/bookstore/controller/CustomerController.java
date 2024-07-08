@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/customer")
@@ -56,6 +57,19 @@ public class CustomerController {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("change-password/{id}")
+    public ResponseEntity<?> changePassword(@PathVariable("id") int userId,
+                                            @RequestBody Map<String, String> request) {
+        String password = request.get("password");
+        try {
+            return ResponseEntity.ok(this.customerService.changePassword(userId, password));
+        } catch (EntityNotFoundException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

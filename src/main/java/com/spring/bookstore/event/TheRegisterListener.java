@@ -27,7 +27,6 @@ public class TheRegisterListener implements ApplicationListener<OnRegisterComple
         Users users = event.getUsers();
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = this.userService.saveVerificationToken(users, token);
-        System.out.println(verificationToken);
 
         String confirmationURL = event.getAppURL() + "/auth/registrationConfirmation?token=" + token;
 
@@ -36,7 +35,6 @@ public class TheRegisterListener implements ApplicationListener<OnRegisterComple
         simpleMailMessage.setTo(users.getEmail());
         simpleMailMessage.setSubject("Registration Confirmation");
         simpleMailMessage.setText("Click here to confirm: " + "\r\n" + "http://localhost:8080" + confirmationURL);
-        System.out.println("Send");
         this.javaMailSender.send(simpleMailMessage);
     }
 }

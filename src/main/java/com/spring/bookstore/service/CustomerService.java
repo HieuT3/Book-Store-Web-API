@@ -54,6 +54,14 @@ public class CustomerService {
         return this.modelMapper.map(this.customerRepository.save(customer), CustomerProfileDto.class);
     }
 
+    public CustomerProfileDto changePassword(int userId, String password) {
+        Customer customer = this.customerRepository.findById(userId).orElseThrow(
+                () -> new EntityNotFoundException("The customer with id " + userId + " not found!")
+        );
+        customer.setPassword(this.passwordEncoder.encode(password));
+        return this.modelMapper.map(this.customerRepository.save(customer), CustomerProfileDto.class);
+    }
+
     public void deleteCustomer(int customerId) {
         this.customerRepository.findById(customerId)
                 .orElseThrow(

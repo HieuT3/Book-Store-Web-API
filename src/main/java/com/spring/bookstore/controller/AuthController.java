@@ -1,16 +1,16 @@
 package com.spring.bookstore.controller;
 
+import com.spring.bookstore.dto.CustomerProfileDto;
 import com.spring.bookstore.dto.LoginResponseDto;
 import com.spring.bookstore.dto.LoginUserDto;
 import com.spring.bookstore.entity.Users;
 import com.spring.bookstore.entity.VerificationToken;
-import com.spring.bookstore.repository.CustomerRepository;
 import com.spring.bookstore.repository.UserRepository;
 import com.spring.bookstore.security.JwtAuthenticationProvider;
 import com.spring.bookstore.service.AuthService;
-import com.spring.bookstore.service.CustomerService;
 import com.spring.bookstore.service.UserService;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,6 +30,7 @@ public class AuthController {
     private UserDetailsService userDetailsService;
     private UserService userService;
     private UserRepository userRepository;
+    private ModelMapper modelMapper;
 
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginUserDto) {
@@ -55,6 +56,6 @@ public class AuthController {
         }
         Users users = verificationToken.getUsers();
         users.setEnabled(true);
-        return ResponseEntity.ok(this.userRepository.save(users));
+        return ResponseEntity.ok(this.modelMapper.map(this.userRepository.save(users), CustomerProfileDto.class));
     }
 }

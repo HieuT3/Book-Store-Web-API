@@ -13,6 +13,7 @@ public class CustomerProfileDto {
     private int userId;
     private String email;
     private String fullName;
+    private boolean enabled;
     private String phone;
     private String address;
 }
