@@ -1,17 +1,23 @@
 package com.spring.bookstore.service;
 
+import com.spring.bookstore.dto.ResetPasswordDto;
+import com.spring.bookstore.entity.PasswordResetToken;
 import com.spring.bookstore.entity.Users;
 import com.spring.bookstore.entity.VerificationToken;
+import com.spring.bookstore.repository.PasswordResetTokenRepository;
 import com.spring.bookstore.repository.UserRepository;
 import com.spring.bookstore.repository.VerificationTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +25,10 @@ public class UserService {
 
     private UserRepository userRepository;
     private VerificationTokenRepository verificationTokenRepository;
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+    private JavaMailSender javaMailSender;
+    private PasswordEncoder passwordEncoder;
+    private MailService mailService;
 
     public UserDetails getUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -42,5 +52,42 @@ public class UserService {
         verificationToken.setToken(token);
         verificationToken.setExpiryDate(new Date(System.currentTimeMillis() + 3600000 * 24));
         return this.verificationTokenRepository.save(verificationToken);
+    }
+
+    public void resetPassword(String email) {
+        Users users = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("The user with email " + email + " does not exist!"));
+        PasswordResetToken passwordResetToken = this.createPasswordResetToken(users);
+
+        String token = passwordResetToken.getToken();
+        String message = "Please click the link to reset your password http://localhost:8080/auth/change-password?token=" + token;
+        String to = users.getEmail();
+        String subject = "Reset Password";
+
+        this.mailService.sendMail(to, subject, message);
+    }
+
+    public PasswordResetToken createPasswordResetToken(Users users) {
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setToken(token);
+        passwordResetToken.setUsers(users);
+        passwordResetToken.setExpiredDate(new Date(System.currentTimeMillis() + 3600000 * 24));
+        return this.passwordResetTokenRepository.save(passwordResetToken);
+    }
+
+    public String validatePasswordResetToken(String token) {
+        PasswordResetToken passwordResetToken = this.passwordResetTokenRepository.findByToken(token).orElse(null);
+        if (passwordResetToken == null) return null;
+        if (passwordResetToken.getExpiredDate().before(new Date(System.currentTimeMillis()))) return "Expired";
+        return "ValidToken";
+    }
+
+    public Users savePassword(ResetPasswordDto resetPasswordDto) {
+        String email = resetPasswordDto.getEmail();
+        Users users = this.userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User with email " + email + " does not exist!"));
+        users.setPassword(this.passwordEncoder.encode(resetPasswordDto.getPassword()));
+        return this.userRepository.save(users);
     }
 }

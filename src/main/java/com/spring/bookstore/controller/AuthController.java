@@ -3,12 +3,14 @@ package com.spring.bookstore.controller;
 import com.spring.bookstore.dto.CustomerProfileDto;
 import com.spring.bookstore.dto.LoginResponseDto;
 import com.spring.bookstore.dto.LoginUserDto;
+import com.spring.bookstore.dto.ResetPasswordDto;
 import com.spring.bookstore.entity.Users;
 import com.spring.bookstore.entity.VerificationToken;
 import com.spring.bookstore.repository.UserRepository;
 import com.spring.bookstore.security.JwtAuthenticationProvider;
 import com.spring.bookstore.service.AuthService;
 import com.spring.bookstore.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -57,5 +59,27 @@ public class AuthController {
         Users users = verificationToken.getUsers();
         users.setEnabled(true);
         return ResponseEntity.ok(this.modelMapper.map(this.userRepository.save(users), CustomerProfileDto.class));
+    }
+
+    @GetMapping("reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam("email") String email) {
+        this.userService.resetPassword(email);
+        return ResponseEntity.ok("Please check the email to reset your password!");
+    }
+
+    @GetMapping("change-password")
+    public ResponseEntity<?> changePassword(@RequestParam("token") String token) {
+        String result = this.userService.validatePasswordResetToken(token);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("save-password")
+    public ResponseEntity<?> savePassword(@RequestBody ResetPasswordDto resetPasswordDto) {
+        try {
+            return ResponseEntity.ok(this.userService.savePassword(resetPasswordDto));
+        } catch (EntityNotFoundException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -1,7 +1,10 @@
 package com.spring.bookstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,4 +36,8 @@ public class Users {
     @ManyToOne
     @JoinColumn(name = "role", referencedColumnName = "role_id")
     protected Role role;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    private Set<PasswordResetToken> tokens;
 }
