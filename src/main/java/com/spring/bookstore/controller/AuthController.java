@@ -20,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("auth")
@@ -37,6 +37,7 @@ public class AuthController {
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody LoginUserDto loginUserDto) {
         try {
+            System.out.println(loginUserDto);
             Users users = this.authService.authenticate(loginUserDto);
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(users.getEmail());
             String token = this.authenticationProvider.generateToken(userDetails);
@@ -53,7 +54,7 @@ public class AuthController {
         if(verificationToken == null) {
             return new ResponseEntity<>("Invalid Token", HttpStatus.BAD_REQUEST);
         }
-        if(verificationToken.getExpiryDate().before(new Date(System.currentTimeMillis()))) {
+        if(verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             return new ResponseEntity<>("Token expired", HttpStatus.BAD_REQUEST);
         }
         Users users = verificationToken.getUsers();

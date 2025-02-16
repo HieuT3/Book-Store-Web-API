@@ -9,14 +9,13 @@ import com.spring.bookstore.repository.UserRepository;
 import com.spring.bookstore.repository.VerificationTokenRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -26,7 +25,6 @@ public class UserService {
     private UserRepository userRepository;
     private VerificationTokenRepository verificationTokenRepository;
     private PasswordResetTokenRepository passwordResetTokenRepository;
-    private JavaMailSender javaMailSender;
     private PasswordEncoder passwordEncoder;
     private MailService mailService;
 
@@ -50,7 +48,7 @@ public class UserService {
         VerificationToken verificationToken = new VerificationToken();
         verificationToken.setUsers(users);
         verificationToken.setToken(token);
-        verificationToken.setExpiryDate(new Date(System.currentTimeMillis() + 3600000 * 24));
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
         return this.verificationTokenRepository.save(verificationToken);
     }
 
@@ -72,14 +70,14 @@ public class UserService {
         PasswordResetToken passwordResetToken = new PasswordResetToken();
         passwordResetToken.setToken(token);
         passwordResetToken.setUsers(users);
-        passwordResetToken.setExpiredDate(new Date(System.currentTimeMillis() + 3600000 * 24));
+        passwordResetToken.setExpiredDate(LocalDateTime.now().plusHours(24));
         return this.passwordResetTokenRepository.save(passwordResetToken);
     }
 
     public String validatePasswordResetToken(String token) {
         PasswordResetToken passwordResetToken = this.passwordResetTokenRepository.findByToken(token).orElse(null);
         if (passwordResetToken == null) return null;
-        if (passwordResetToken.getExpiredDate().before(new Date(System.currentTimeMillis()))) return "Expired";
+        if (passwordResetToken.getExpiredDate().isBefore(LocalDateTime.now())) return "Expired";
         return "ValidToken";
     }
 

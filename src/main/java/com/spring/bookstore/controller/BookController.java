@@ -1,11 +1,13 @@
 package com.spring.bookstore.controller;
 
+import com.spring.bookstore.dto.BookDataDto;
 import com.spring.bookstore.dto.BookDto;
 import com.spring.bookstore.entity.Book;
 import com.spring.bookstore.service.BookService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +27,7 @@ public class BookController {
     public ResponseEntity<?> getBookById(@PathVariable("id") int bookId) {
         try {
             Book book =this.bookService.getBookById(bookId);
+            System.out.println(book);
             return new ResponseEntity<>(book, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             e.printStackTrace();
@@ -33,8 +36,20 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        return ResponseEntity.ok(this.bookService.getAllBooks());
+    public ResponseEntity<List<BookDataDto>> getAllBooksOnly() {
+        return ResponseEntity.ok(this.bookService.getAllBooksOnly());
+    }
+
+    @GetMapping("paged")
+    public ResponseEntity<Page<BookDataDto>> getBooksByPagingAndSorting(
+            @RequestParam("page") int page,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "") String sortBy,
+            @RequestParam(defaultValue = "") String direction,
+            @RequestParam(defaultValue = "") String title
+
+    ) {
+        return title.isEmpty() ? ResponseEntity.ok(this.bookService.getBooksByPagingAndSorting(page, size, sortBy, direction)) :  ResponseEntity.ok(this.bookService.searchBooksByTitlePagingAndSorting(page, size, sortBy, direction, title));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -51,7 +66,7 @@ public class BookController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("{id}")
-    public ResponseEntity<?> UpdateBook(@PathVariable("id") int bookId,
+    public ResponseEntity<?> updateBook(@PathVariable("id") int bookId,
                                         @ModelAttribute BookDto bookDto) throws IOException{
         try {
             Book updatedBook = this.bookService.updateBook(bookId, bookDto);
@@ -74,14 +89,5 @@ public class BookController {
         }
     }
 
-    @GetMapping("category/{id}")
-    public ResponseEntity<?> getAllBooksByCategory(@PathVariable("id") int categoryId) {
-        try {
-            List<Book> books = this.bookService.getAllBooksByCategory(categoryId);
-            return ResponseEntity.ok(books);
-        } catch (EntityNotFoundException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
+
 }

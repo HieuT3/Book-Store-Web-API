@@ -1,4 +1,4 @@
-package com.spring.bookstore.Exception;
+package com.spring.bookstore.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

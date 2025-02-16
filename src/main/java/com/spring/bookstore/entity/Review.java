@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,5 +34,5 @@ public class Review {
     private String comment;
 
     @CreationTimestamp
-    private Date reviewTime;
+    private LocalDateTime reviewTime;
 }

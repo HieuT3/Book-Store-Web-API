@@ -1,16 +1,16 @@
 package com.spring.bookstore.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -25,15 +25,8 @@ public class Book {
     @Column(name = "book_id")
     private int bookId;
 
-    @ManyToOne
-    @JoinColumn(name = "category", referencedColumnName = "category_id")
-    private Category category;
-
     @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
-    private String author;
 
     @Column(nullable = false, length = 16777215)
     private String description;
@@ -48,19 +41,32 @@ public class Book {
     private double price;
 
     @Column(name = "publish_date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate publishDate;
 
     @Column(name = "last_updated")
     @UpdateTimestamp
-    private LocalDate lastUpdated;
+    private LocalDateTime lastUpdated;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "book_category",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "book_author",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private Set<Author> authors = new HashSet<>();
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private Set<Review> reviews = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private Set<Review> reviews;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private Set<OrderDetail> orderDetails;
-
+    private Set<OrderDetail> orderDetails = new HashSet<>();
 }

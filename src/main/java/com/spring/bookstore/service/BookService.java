@@ -2,34 +2,40 @@ package com.spring.bookstore.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.spring.bookstore.dto.BookDataDto;
 import com.spring.bookstore.dto.BookDto;
 import com.spring.bookstore.entity.Book;
-import com.spring.bookstore.entity.Category;
 import com.spring.bookstore.mapper.BookMapper;
 import com.spring.bookstore.repository.BookRepository;
-import com.spring.bookstore.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class BookService {
 
-    private CategoryRepository categoryRepository;
     private BookRepository bookRepository;
     private Cloudinary cloudinary;
     private BookMapper bookMapper;
+    private ModelMapper modelMapper;
     private final Map param = ObjectUtils.asMap(
             "unique_filename", false,
             "overwrite", true
     );
+
 
     public String upload(MultipartFile file) throws IOException {
         String fileNameWithExtension = file.getOriginalFilename();
@@ -44,6 +50,29 @@ public class BookService {
         return this.bookRepository.findById(bookId).orElseThrow(
                 () -> new EntityNotFoundException("The book with id " + bookId + " not found!")
         );
+    }
+
+    public Page<BookDataDto> getBooksByPagingAndSorting(int page, int size, String sortBy, String direction) {
+        Sort sort = Sort.unsorted();
+        if(!sortBy.isEmpty() && !direction.isEmpty()) sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return this.bookRepository.findAll(pageable)
+                .map((book) -> this.modelMapper.map(book, BookDataDto.class));
+    }
+
+    public Page<BookDataDto> searchBooksByTitlePagingAndSorting(int page, int size, String sortBy, String direction, String title) {
+        Sort sort = Sort.unsorted();
+        if(!sortBy.isEmpty() && !direction.isEmpty()) sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return this.bookRepository.findByTitleContainingIgnoreCase(title, pageable)
+                .map((book) -> this.modelMapper.map(book, BookDataDto.class));
+    }
+
+    public List<BookDataDto> getAllBooksOnly() {
+        return this.bookRepository.findAllBooksOnly()
+                .stream()
+                .map(((book) -> this.modelMapper.map(book, BookDataDto.class)))
+                .toList();
     }
 
     public List<Book> getAllBooks() {
@@ -88,11 +117,5 @@ public class BookService {
         this.bookRepository.deleteById(bookId);
     }
 
-    public List<Book> getAllBooksByCategory(int categoryId) {
-        Category category = this.categoryRepository.findById(categoryId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException("The category with id " + categoryId + " not found")
-                );
-        return this.bookRepository.findAllByCategory(category);
-    }
+
 }

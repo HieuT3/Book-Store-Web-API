@@ -6,6 +6,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.Map;
 
@@ -39,6 +40,9 @@ public class MainTest {
 //
 //        System.out.println(
 //                cloudinary.api().resource("coffee_cup", params2));
-        testPasswordEncoder();
+//        testPasswordEncoder();
+        int num = 10;
+        Integer x = num;
+        System.out.println();
     }
 }

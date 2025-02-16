@@ -10,23 +10,22 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Set;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "category")
-public class Category {
-
+@Table(name = "author")
+public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    private int categoryId;
+    @Column(name = "author_id")
+    private int authorId;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false)
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "categories")
+    @ManyToMany(mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 }

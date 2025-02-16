@@ -3,7 +3,7 @@ package com.spring.bookstore.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,5 +26,5 @@ public class VerificationToken {
     private Users users;
 
     @Column(nullable = false)
-    private Date expiryDate;
+    private LocalDateTime expiryDate;
 }

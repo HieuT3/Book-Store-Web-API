@@ -10,9 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 public class BookDto {
     private int bookId;
-    private int category;
     private String title;
-    private String author;
     private String description;
     private String isbn;
     private MultipartFile multipartFile;

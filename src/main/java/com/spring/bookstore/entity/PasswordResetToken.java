@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,5 +29,5 @@ public class PasswordResetToken {
     private Users users;
 
     @Column(nullable = false)
-    private Date expiredDate;
+    private LocalDateTime expiredDate;
 }

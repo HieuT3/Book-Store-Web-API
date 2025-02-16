@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public class Order {
     private Customer customer;
 
     @CreationTimestamp
-    private Date orderDate;
+    private LocalDateTime orderDate;
 
     @Column(nullable = false)
     private String shippingAddress;
@@ -43,7 +44,7 @@ public class Order {
     private String paymentMethod;
 
     @Column(nullable = false, precision = 12)
-    private float shippingCost;
+    private double shippingCost;
 
     @Column(nullable = false)
     private int bookCopies;
@@ -55,5 +56,5 @@ public class Order {
     private OrderStatusEnum status;
 
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
-    private Set<OrderDetail> orderDetails;
+    private Set<OrderDetail> orderDetails = new HashSet<>();
 }
